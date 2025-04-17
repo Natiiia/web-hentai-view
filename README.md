@@ -1,3 +1,10 @@
+> **Notice**: This project is cloned from [IronKinoko/e-hentai-view](https://github.com/IronKinoko/e-hentai-view), which is no longer actively maintained.  
+> This fork is now under active development and will continue to be updated and improved.
+
+> **注意：**本项目基于 [IronKinoko/e-hentai-view](https://github.com/IronKinoko/e-hentai-view) 克隆而来，原项目已不再维护。  
+> 本仓库将继续进行后续维护与功能更新。
+
+
 <p align="center">
   <img width="144px" height="144px" src="https://raw.githubusercontent.com/IronKinoko/asset/master/e-hentai-view/icon.png"/>
 </p>
