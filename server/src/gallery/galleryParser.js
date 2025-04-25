@@ -1,6 +1,7 @@
 const { uniq } = require('lodash')
 const dayjs = require('dayjs')
 const { GalleryMode } = require('../constant')
+global.myGlobalCache = {}
 
 /**
  * @param {Document} document
@@ -10,10 +11,28 @@ function parseGalleryList(document, mode) {
   const res = []
   let total = 0
 
+  // 翻页逻辑重写
+  const scripts = Array.from(document.querySelectorAll('script'))
+  let nexturl = null
+
+  for (const script of scripts) {
+    const text = script.textContent
+    const match = text.match(/var\s+nexturl\s*=\s*"([^"]+)"/)
+    if (match) {
+      nexturl = match[1]
+      break
+    }
+  }
+  console.log('nexturl:', nexturl)
+  global.myGlobalCache[mode] = nexturl
+  // 原代码中的翻页逻辑不可用，进行重写
+
   if (mode === GalleryMode.FrontPage || mode === GalleryMode.Favorites)
-    total = parseInt(
-      document.querySelector('p.ip').textContent.replace(/[^0-9]/g, '')
-    )
+    // total = parseInt(
+    //   document.querySelector('p.ip').textContent.replace(/[^0-9]/g, '')
+    // )
+    // 不清楚为什么老代码中是使用<p class="ip">标签来统计的
+    total = document.querySelectorAll('.glink').length
   if (mode === GalleryMode.Watched)
     total = parseInt(
       document.querySelectorAll('p.ip')[1].textContent.replace(/[^0-9]/g, '')
@@ -74,7 +93,7 @@ function parseGalleryList(document, mode) {
       }
     })
   if (mode === GalleryMode.Popular) total = res.length
-  return { list: res, total }
+  return { list: res, total, nexturl }
 }
 
 /**

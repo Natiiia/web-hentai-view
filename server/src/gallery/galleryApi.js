@@ -61,11 +61,18 @@ async function gdata(gidlist, cookies) {
 }
 
 async function galleryList({ page, f_search }, cookies) {
+  let next = null
+  if (page > 0) {
+    console.log(global.myGlobalCache)
+    const parsed = new URL(global.myGlobalCache[GalleryMode.FrontPage])
+    next = parsed.searchParams.get('next')
+  }
+
   const res = await axios.get(`${baseURL}`, {
     headers: {
       Cookie: cookies,
     },
-    params: { page, f_search, inline_set: 'dm_l' },
+    params: { next, f_search, inline_set: 'dm_l' },
     maxRedirects: 2,
   })
   const document = new JSDOM(res.data).window.document

@@ -90,6 +90,8 @@ export interface GalleriesPage {
   total: number
   error: boolean
   message: string
+  nexturl: string
+  prevurl: string
 }
 export interface PageListProps {
   initialData: DetailPageListItemProps[]

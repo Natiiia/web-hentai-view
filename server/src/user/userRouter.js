@@ -29,8 +29,8 @@ router.post('/login', async (req, res) => {
     getCookieString(userCookie)
   )
   Object.entries({ ...setingCookie, ...userCookie }).forEach(([key, value]) => {
-    if (key === 'igneous' && value === 'mystery')
-      throw new Error('[login faild] User cookie "igneous" value error')
+    // if (key === 'igneous' && value === 'mystery')
+    //   throw new Error('[login faild] User cookie "igneous" value error')
     res.cookie(key, value, cookieOption(req))
   })
   res.send({ error: false, message: content })
