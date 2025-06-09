@@ -23,7 +23,7 @@ async function getFavorites({ page, favcat }, cookies) {
 
   if (mode !== 'Compact') {
     res = await axios.get(`${favoritesURL}`, {
-      // params: { page, favcat, inline_set: 'dm_l' }, //dm_l will take error
+      // params: { page, favcat, inline_set: 'dm_l' },
       params: { next, favcat },
       headers: { Cookie: cookies },
     })
