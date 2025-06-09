@@ -9,8 +9,20 @@ const axios = Axios.create({
     withCredentials: true,
   },
   maxRedirects: 2,
-  httpAgent: new HttpProxyAgent('http://192.168.31.38:10809'),
-  httpsAgent: new HttpsProxyAgent('http://192.168.31.38:10809'),
+  httpAgent: new HttpProxyAgent('http://Clash:JEpfb5tb@192.168.0.6:7890'),
+  httpsAgent: new HttpsProxyAgent('http://Clash:JEpfb5tb@192.168.0.6:7890'),
   proxy: false,
 })
+
+axios.interceptors.request.use((config) => {
+  const url = new URL(config.url, config.baseURL || 'http://localhost')
+  if (config.params) {
+    for (const [key, value] of Object.entries(config.params)) {
+      url.searchParams.append(key, value)
+    }
+  }
+  console.log(`[Axios] 请求完整 URL: ${url.href}`)
+  return config
+})
+
 module.exports = axios

@@ -1,6 +1,7 @@
 const { uniq } = require('lodash')
 const dayjs = require('dayjs')
 const { GalleryMode } = require('../constant')
+global.myGlobalCache = {}
 
 /**
  * @param {Document} document
@@ -10,10 +11,28 @@ function parseGalleryList(document, mode) {
   const res = []
   let total = 0
 
+  // 翻页逻辑重写
+  const scripts = Array.from(document.querySelectorAll('script'))
+  let nexturl = null
+
+  for (const script of scripts) {
+    const text = script.textContent
+    const match = text.match(/var\s+nexturl\s*=\s*"([^"]+)"/)
+    if (match) {
+      nexturl = match[1]
+      break
+    }
+  }
+  console.log('nexturl:', nexturl)
+  global.myGlobalCache[mode] = nexturl
+  // 原代码中的翻页逻辑不可用，进行重写
+
   if (mode === GalleryMode.FrontPage || mode === GalleryMode.Favorites)
-    total = parseInt(
-      document.querySelector('p.ip').textContent.replace(/[^0-9]/g, '')
-    )
+    // total = parseInt(
+    //   document.querySelector('p.ip').textContent.replace(/[^0-9]/g, '')
+    // )
+    // 不清楚为什么老代码中是使用<p class="ip">标签来统计的
+    total = document.querySelectorAll('.glink').length
   if (mode === GalleryMode.Watched)
     total = parseInt(
       document.querySelectorAll('p.ip')[1].textContent.replace(/[^0-9]/g, '')
@@ -74,7 +93,7 @@ function parseGalleryList(document, mode) {
       }
     })
   if (mode === GalleryMode.Popular) total = res.length
-  return { list: res, total }
+  return { list: res, total, nexturl }
 }
 
 /**
@@ -114,21 +133,96 @@ async function parseHTMLAnchorElement(document) {
   return uniq(pathnameList).map((pathname) => pathname.split('/'))
 }
 
+// function parseDetailPageList(document) {
+//   const gdts = document
+//     .getElementById('gdt')
+//     .querySelectorAll('div[class^="gdt"')
+//   const filecount = parseInt(
+//     document
+//       .querySelector('#gdd table tr:nth-of-type(6) .gdt2')
+//       .textContent.replace(/[^0-9]/g, '')
+//   )
+//   return {
+//     list: Array.from(gdts).map((gdt) => {
+//       const aEl = gdt.querySelector('a')
+//       const imgEl = gdt.querySelector('img')
+//
+//       return { thumb: imgEl.src, url: aEl.href }
+//     }),
+//     total: filecount,
+//   }
+// }
+
+// function parseDetailPageList(document) {
+//   const gdts = document
+//     .getElementById('gdt')
+//     .querySelectorAll('a')
+//
+//   const filecount = parseInt(
+//     document
+//       .querySelector('#gdd table tr:nth-of-type(6) .gdt2')
+//       ?.textContent.replace(/\D/g, '') || '0'
+//   )
+//
+//   return {
+//     list: Array.from(gdts).map((gdt) => {
+//       const aEl = gdt
+//       const divEl = aEl.querySelector('div')
+//       const style = divEl?.getAttribute('style') || ''
+//
+//       // 提取背景图 URL
+//       const urlMatch = style.match(/url\(["']?(.*?)["']?\)/)
+//       const thumb = urlMatch ? urlMatch[1] : null
+//
+//       // 提取背景偏移
+//       const posMatch = style.match(/url\(.*?\)\s+(-?\d+)px\s+(-?\d+)px/)
+//       const position = posMatch ? {
+//         x: parseInt(posMatch[1]),
+//         y: parseInt(posMatch[2])
+//       } : { x: 0, y: 0 }
+//
+//       // 提取宽高
+//       const widthMatch = style.match(/width:\s*(\d+)px/)
+//       const heightMatch = style.match(/height:\s*(\d+)px/)
+//       const size = {
+//         width: widthMatch ? parseInt(widthMatch[1]) : null,
+//         height: heightMatch ? parseInt(heightMatch[1]) : null,
+//       }
+//
+//       return {
+//         url: aEl.href,
+//         thumb,
+//         position,
+//         size,
+//       }
+//     }),
+//     total: filecount,
+//   }
+// }
+
 function parseDetailPageList(document) {
-  const gdts = document
-    .getElementById('gdt')
-    .querySelectorAll('div[class^="gdt"')
+  const gdts = document.getElementById('gdt').querySelectorAll('a')
+
   const filecount = parseInt(
     document
       .querySelector('#gdd table tr:nth-of-type(6) .gdt2')
-      .textContent.replace(/[^0-9]/g, '')
+      ?.textContent.replace(/\D/g, '') || '0'
   )
+
   return {
     list: Array.from(gdts).map((gdt) => {
-      const aEl = gdt.querySelector('a')
-      const imgEl = gdt.querySelector('img')
+      const aEl = gdt
+      const divEl = aEl.querySelector('div')
 
-      return { thumb: imgEl.src, url: aEl.href }
+      // 直接拼接 title + style 作为 thumb 返回
+      const titleAttr = divEl?.getAttribute('title') || ''
+      const styleAttr = divEl?.getAttribute('style') || ''
+      const thumb = `title="${titleAttr}" style="${styleAttr}"`
+
+      return {
+        url: aEl.href,
+        thumb,
+      }
     }),
     total: filecount,
   }

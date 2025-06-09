@@ -1,5 +1,5 @@
 import { loadMorePage } from '@/apis'
-import LoadMedia from '@/components/LoadMedia'
+// import LoadMedia from '@/components/LoadMedia'
 import useInViewportWithDistance from '@/hooks/useInViewportWithDistance'
 import { PageListProps } from '@/interface/gallery'
 import { Button, Card, CardActionArea, Grid, Typography } from '@mui/material'
@@ -84,7 +84,13 @@ const PageList: React.FC<Omit<PageListProps, 'filecount'>> = ({
             <Grid item xs>
               <Card>
                 <CardActionArea onClick={() => handleOpen(i)}>
-                  <LoadMedia className={classes.cover} src={o.thumb} />
+                  {/*<LoadMedia className={classes.cover} src={o.thumb} />*/}
+                  <div
+                    className={classes.cover}
+                    dangerouslySetInnerHTML={{
+                      __html: `<div ${o.thumb}></div>`,
+                    }}
+                  />
                 </CardActionArea>
               </Card>
             </Grid>
