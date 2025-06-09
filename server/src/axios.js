@@ -9,8 +9,8 @@ const axios = Axios.create({
     withCredentials: true,
   },
   maxRedirects: 2,
-  httpAgent: new HttpProxyAgent('http://Clash:Y90oAsIE@192.168.0.111:7890'),
-  httpsAgent: new HttpsProxyAgent('http://Clash:Y90oAsIE@192.168.0.111:7890'),
+  httpAgent: new HttpProxyAgent('http://Clash:JEpfb5tb@192.168.0.6:7890'),
+  httpsAgent: new HttpsProxyAgent('http://Clash:JEpfb5tb@192.168.0.6:7890'),
   proxy: false,
 })
 
